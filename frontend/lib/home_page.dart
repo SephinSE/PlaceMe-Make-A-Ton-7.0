@@ -15,6 +15,7 @@ class MyHomePage extends StatelessWidget {
 
   final List<Widget> pages =  const [
     PlaceMeFeedPage(),
+    PlaceMePostPage(),
     PlaceMeSchedulesPage(),
     PlaceMeCareerPage(),
     PlaceMeProfilePage(),

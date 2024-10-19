@@ -15,7 +15,7 @@ class _PlaceMeNavBarState extends State<PlaceMeNavBar> {
   @override
   Widget build(BuildContext context) {
     Color color = AppStyles.placeMeColor;
-    bool isAdmin = false;
+    bool isAdmin = true;
 
     return NavigationBar(
       destinations: [
