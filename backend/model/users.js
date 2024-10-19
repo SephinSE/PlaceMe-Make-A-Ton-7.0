@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
     profilePicture: {
       type: String,
       trim: true,
+      default: "https://res.cloudinary.com/dmgqukycq/image/upload/v1729373171/wsta1witzksc0mf8i9vt.png",
     },
     dob: {
       type: Date,
@@ -37,7 +38,7 @@ const userSchema = new mongoose.Schema(
     tenthPercentage: {
       type: Number,
     },
-    twelthPercentage: {
+    twelfthPercentage: {
       type: Number,
     },
     diplomaPercentage: {
