@@ -27,8 +27,15 @@ final GoRouter _router = GoRouter(
       GoRoute(
         path: '/',
         builder: (context, state) {
-          //return const PlaceMeAuthPage();
-          return const MyHomePage();
+          return Consumer<ApplicationState>(
+            builder: (context, authProvider, _) {
+              if (authProvider.isLoggedIn) {
+                return const MyHomePage(); // Replace with your home page
+              } else {
+                return const PlaceMeAuthPage(); // Replace with your authentication page
+              }
+            },
+          );
         },
         routes: [
           GoRoute(
