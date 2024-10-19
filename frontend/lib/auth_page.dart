@@ -258,27 +258,38 @@ class _PlaceMeAuthPageState extends State<PlaceMeAuthPage> {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: () {
+                                    // Reset error message before any validation
+                                    setState(() {
+                                      errorMessage = '';
+                                    });
+
+                                    // Validate full name for registration
                                     if (!isLogin && _controllerFullName.text.isEmpty) {
                                       setState(() {
                                         errorMessage = 'Full name field cannot be empty! Please try again.';
                                       });
-                                      return;
+                                      return;  // Early return to prevent further execution
                                     }
+
+                                    // Validate password presence
                                     if (_controllerPassword.text.isEmpty) {
                                       setState(() {
                                         errorMessage = 'Please provide a password and try again.';
                                       });
-                                      return;
+                                      return;  // Early return to prevent further execution
                                     }
+
+                                    // Check if password and confirm password match for registration
                                     if (!isLogin && _controllerPassword.text != _controllerConfirmPassword.text) {
                                       setState(() {
                                         errorMessage = 'Passwords do not match! Please try again.';
                                       });
-                                      return;
+                                      return;  // Early return to prevent further execution
                                     }
+
+                                    // If form is valid and no errors, proceed with registration
                                     if (_formKey.currentState!.validate() && !_isRegistering) {
-                                      // isLogin ? signInWithEmailAndPassword() : createUserWithEmailAndPassword();
-                                      register();
+                                      register();  // Perform the registration action
                                     }
                                   },
                                   style: buttonStyle.copyWith(padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 20))),
