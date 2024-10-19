@@ -3,6 +3,7 @@ const {
   signup,
   login,
   updateUserProfile,
+  getUserDetails,
 } = require("../controller/userController"); // Adjust the path as needed
 const upload = require("../config/multerConfig");
 const { authenticateJWT } = require("../middleware/auth");
@@ -20,5 +21,6 @@ router.put(
   authenticateJWT,
   updateUserProfile
 );
+router.get("/:userId/get", authenticateJWT, getUserDetails);
 
 module.exports = router;

@@ -35,7 +35,7 @@ const checkRole = (role) => {
     } else {
       return res
         .status(403)
-        .json({ message: `you don't have ${role} permission` });
+        .json({ message: `you don't have permission` });
     }
   };
 };
