@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const { RateLimiterMemory } = require("rate-limiter-flexible");
 const connectDB = require("./config/db");
 const userRoute = require("./router/userRouter");
+const jobRoute = require("./router/jobRouter");
 const app = express();
 
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(helmet());
 
 app.use("/api/users/", userRoute);
+app.use("/api/jobs/", jobRoute);
 
 const rateLimiter = new RateLimiterMemory({
   points: 10,
