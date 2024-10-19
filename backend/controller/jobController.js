@@ -42,3 +42,23 @@ exports.createJobDetails = async (req, res) => {
     });
   }
 };
+
+exports.getJobCards = async (req, res) => {
+  try {
+    const jobs = await JobDetails.find(
+      {},
+      "company_name job_title location package role_type"
+    );
+
+    res.status(200).json({
+      message: "Job cards fetched successfully",
+      jobs,
+    });
+  } catch (error) {
+    console.error("Error fetching job cards:", error);
+    res.status(500).json({
+      message: "Failed to fetch job cards",
+      error: error.message,
+    });
+  }
+};
