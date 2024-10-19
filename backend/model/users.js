@@ -72,6 +72,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  resume:{
+    type: String,
+  },
   isPlaceCo: {
     type: Boolean,
     default: false,
