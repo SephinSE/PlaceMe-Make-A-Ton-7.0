@@ -6,4 +6,5 @@ class ApplicationState extends ChangeNotifier {
   ApplicationState() {
 
   }
+  String? errorMessage = '';
 }
