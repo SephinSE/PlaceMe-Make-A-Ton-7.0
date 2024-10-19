@@ -75,34 +75,40 @@ exports.login = async (req, res) => {
 };
 
 exports.updateUserProfile = async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const updateFields = req.body;
+  try {
+    const userId = req.params.userId;
+    const updateFields = req.body;
 
-      delete updateFields.isPlaceCo;
-  
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      if (req.file) {
-        const resumeUrl = await uploadToCloudinary(req.file);
-        updateFields.resume = resumeUrl;
-      }
-  
-      Object.assign(user, updateFields);
-      await user.save();
-  
-      res.status(200).json({
-        message: 'User updated successfully',
-        user,
-      });
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      res.status(500).json({
-        message: 'Failed to update user profile',
-        error: error.message,
-      });
+    delete updateFields.isPlaceCo;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  };
+
+    if (req.file) {
+      const resumeUrl = await uploadToCloudinary(req.file);
+      updateFields.resume = resumeUrl;
+    }
+    if (req.files && req.files["profilePicture"]) {
+      const profilePictureUrl = await uploadToCloudinary(
+        req.files["profilePicture"][0]
+      );
+      updateFields.profilePicture = profilePictureUrl;
+    }
+
+    Object.assign(user, updateFields);
+    await user.save();
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({
+      message: "Failed to update user profile",
+      error: error.message,
+    });
+  }
+};
