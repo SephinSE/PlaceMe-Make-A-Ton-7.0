@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'dart:convert'; // For json.encode and json.decode
+import 'package:flutter/material.dart'; // Flutter material design components
+import 'package:http/http.dart' as http; // For making HTTP requests
+import '../textextract.dart'; // Your custom PDFProcessor class
 
 class PlaceMePostPage extends StatefulWidget {
   const PlaceMePostPage({super.key});
@@ -12,177 +11,110 @@ class PlaceMePostPage extends StatefulWidget {
 }
 
 class _PlaceMePostPageState extends State<PlaceMePostPage> {
-  String? _jobDetails;
-  String? _extractedText;
+  final PDFProcessor _pdfProcessor = PDFProcessor();
+
+  // Form controllers for each field
+  final TextEditingController _companyNameController = TextEditingController();
+  final TextEditingController _jobTitleController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _packageController = TextEditingController();
+  final TextEditingController _roleTypeController = TextEditingController();
+  final TextEditingController _minimumCgpaController = TextEditingController();
+  final TextEditingController _backlogController = TextEditingController();
+  final TextEditingController _serviceBondController = TextEditingController();
+  final TextEditingController _jobDescriptionController =
+      TextEditingController();
+
   bool _isLoading = false;
 
-  final String convertApiSecret = 'secret_qGBWTagi91WZryAx'; // Replace with your Convert API Secret
-  final String geminiApiKey = 'AIzaSyCuRtOFEMHCZy6ZLz3c5XMA2yzkrRmjjWw'; // Your Gemini API Key
-
   Future<void> _uploadPDFAndExtractText() async {
-  setState(() {
-    _isLoading = true; // Show loading indicator
-  });
-
-  // Step 1: Pick a PDF file
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.custom,
-    allowedExtensions: ['pdf'],
-  );
-
-  if (result != null && result.files.isNotEmpty) {
-    final fileBytes = result.files.first.bytes;
-
-    // Debugging: Confirm that the file was picked
-    print('PDF file picked: ${result.files.first.name}');
-
-    if (fileBytes != null) {
-      try {
-        // Step 2: Encode the PDF file to Base64
-        String base64EncodedFile = base64Encode(fileBytes);
-
-        // Step 3: Prepare the request body
-        final requestBody = json.encode({
-          "Parameters": [
-            {
-              "Name": "File",
-              "FileValue": {
-                "Name": result.files.first.name,
-                "Data": base64EncodedFile,
-              },
-            },
-            {
-              "Name": "StoreFile",
-              "Value": true,
-            },
-          ],
-        });
-
-        // Step 4: Send the request to the Convert API
-        final uri = Uri.parse('https://v2.convertapi.com/convert/pdf/to/txt');
-        final response = await http.post(
-          uri,
-          headers: {
-            'Authorization': 'Bearer $convertApiSecret',
-            'Content-Type': 'application/json',
-          },
-          body: requestBody,
-        );
-
-        // Debugging: Log response status
-        print('Convert API response status: ${response.statusCode}');
-
-        if (response.statusCode == 200) {
-          final extractedData = json.decode(response.body);
-
-          // Debugging: Log the entire response data
-          print('Response from Convert API: $extractedData');
-
-          // Check if the response contains the file URL
-          if (extractedData['Files'] != null && extractedData['Files'].isNotEmpty) {
-            String textFileUrl = extractedData['Files'][0]['Url'];
-
-            // Debugging: Log the URL of the extracted text file
-            print('Extracted Text File URL: $textFileUrl');
-
-            // Step 5: Fetch the content of the text file
-            final textResponse = await http.get(Uri.parse(textFileUrl));
-
-            if (textResponse.statusCode == 200) {
-              setState(() {
-                _extractedText = textResponse.body; // Set the extracted text
-                print('Extracted Text: $_extractedText'); // Log the extracted text
-              });
-
-              // Proceed to extract job details from the extracted text
-              await _extractJobData(_extractedText!);
-            } else {
-              setState(() {
-                _extractedText = 'Failed to fetch the extracted text file.';
-              });
-              print('Error fetching the extracted text file: ${textResponse.statusCode}');
-            }
-          } else {
-            setState(() {
-              _extractedText = 'No text found in the PDF.';
-            });
-            print('No text found in the PDF.'); // Log this case
-          }
-        } else {
-          final responseData = response.body; // Read response body for more details
-          setState(() {
-            _extractedText = 'Failed to extract data from PDF. Status code: ${response.statusCode}';
-          });
-          print('Error: ${response.statusCode} - ${response.reasonPhrase}'); // Log the error
-          print('Response body: $responseData'); // Log the response body for more details
-        }
-      } catch (e) {
-        setState(() {
-          _extractedText = 'Error: $e';
-        });
-        print('Exception: $e'); // Log any exceptions
-      }
-    } else {
-      setState(() {
-        _extractedText = 'Failed to read file bytes.';
-      });
-      print('Failed to read file bytes.'); // Log this case
-    }
-  } else {
     setState(() {
-      _extractedText = 'No file selected.';
+      _isLoading = true;
     });
-    print('No file selected.'); // Log this case
-  }
 
-  setState(() {
-    _isLoading = false; // Hide loading indicator
-  });
-}
+    // Call the upload and extraction functions
+    final extractedText = await _pdfProcessor.uploadPDFAndExtractText();
+    if (extractedText != null) {
+      String? jobDetailsJson =
+          await _pdfProcessor.extractJobData(extractedText);
 
+      // Remove backticks and any leading "json" text if present
+      final jsonString =
+          jobDetailsJson?.replaceAll('json ', '').replaceAll('`', '');
 
-  Future<void> _extractJobData(String text) async {
-    // Create the model for Gemini API
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: geminiApiKey,
-    );
+      // Decode the JSON string
+      final jobData = json.decode(jsonString!);
 
-    // Send the extracted text to the Gemini API for job data extraction
-    final response = await model.generateContent([
-      Content.text('Extract the job details from the following text in json format and add these values company_name, job_title,location,package,role_type,job_description,minimum_cgpa,number_supplies_permittable,active_backlog_allowed,service_bond,fill with n/a if not available: $text')
-    ]);
-
-    if (response != null) {
-      final responseText = response.text; // Access the response text directly
-      setState(() {
-        _jobDetails = responseText; // Set the extracted job details
-        print('Extracted Job Details: $_jobDetails'); // Log the extracted job details
-      });
-    } else {
-      setState(() {
-        _jobDetails = 'Failed to extract job data.';
-      });
-      print('Failed to extract job data.'); // Log this case
+      if (jobData != null) {
+        setState(() {
+          // Populate the form fields with extracted job data
+          _companyNameController.text = jobData['company_name'] ?? '';
+          _jobTitleController.text = jobData['job_title'] ?? '';
+          _locationController.text = jobData['location'] ?? '';
+          _packageController.text = jobData['package'] ?? '';
+          _roleTypeController.text = jobData['role_type'] ?? '';
+          _minimumCgpaController.text = jobData['minimum_cgpa'] ?? '';
+          _backlogController.text = jobData['active_backlog_allowed'] ?? '';
+          _serviceBondController.text = jobData['service_bond'] ?? '';
+          _jobDescriptionController.text = jobData['job_description'] ?? '';
+        });
+      }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
-    String _formatJobDetails(String jsonResponse) {
+
+  void _postJobData() async {
+    // Get the values from the form controllers
+    String companyName = _companyNameController.text;
+    String jobTitle = _jobTitleController.text;
+    String location = _locationController.text;
+    String package = _packageController.text;
+    String roleType = _roleTypeController.text;
+    String minimumCgpa = _minimumCgpaController.text;
+    String backlogAllowed = _backlogController.text;
+    String serviceBond = _serviceBondController.text;
+    String jobDescription = _jobDescriptionController.text;
+
+    // Create a JSON object
+    final Map<String, dynamic> jobData = {
+      "company_name": companyName,
+      "job_title": jobTitle,
+      "location": location,
+      "package": package,
+      "role_type": roleType,
+      "minimum_cgpa": minimumCgpa,
+      "active_backlog_allowed": backlogAllowed,
+      "service_bond": serviceBond,
+      "job_description": jobDescription,
+    };
+
+    // Send POST request to the backend
     try {
-      final jobData = json.decode(jsonResponse);
-      // Create a formatted string
-      return '''
-      Company Name: ${jobData['company_name']}
-      Job Title: ${jobData['job_title']}
-      Location: ${jobData['location']}
-      Package: ${jobData['package']}
-      Role Type: ${jobData['role_type']}
-      Minimum CGPA: ${jobData['minimum_cgpa']}
-      Active Backlog Allowed: ${jobData['active_backlog_allowed']}
-      Service Bond: ${jobData['service_bond']}
-      ''';
+      final response = await http.post(
+        Uri.parse('http://172.16.0.189:5000/api/jobs/create'),
+        headers: {
+          'Content-Type': 'application/json',
+          // Add the Authorization header if required
+          'Authorization':
+              'Bearer YOUR_JWT_TOKEN', // Replace with actual token if needed
+        },
+        body: json.encode(jobData),
+      );
+
+      if (response.statusCode == 201) {
+        // Successfully created job details
+        final responseBody = json.decode(response.body);
+        print('Job created successfully: ${responseBody['jobDetails']}');
+        // Optionally, you can show a success message or navigate to another page
+      } else {
+        // Handle error response
+        print('Failed to create job details: ${response.body}');
+      }
     } catch (e) {
-      print("Error formatting job details: $e");
-      return 'Failed to format job details';
+      print('Error: $e');
     }
   }
 
@@ -190,9 +122,9 @@ class _PlaceMePostPageState extends State<PlaceMePostPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post'),
+        title: const Text('Post Job Details'),
       ),
-      body:SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -200,25 +132,105 @@ class _PlaceMePostPageState extends State<PlaceMePostPage> {
             children: [
               if (_isLoading)
                 const CircularProgressIndicator(), // Show loading indicator
-              
-              if (_jobDetails != null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Job Details: $_jobDetails',
-                    style: const TextStyle(fontSize: 16),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
+
+              // Company Name field
+              TextFormField(
+                controller: _companyNameController,
+                decoration: const InputDecoration(labelText: 'Company Name'),
+              ),
+              const SizedBox(height: 10),
+
+              // Job Title field
+              TextFormField(
+                controller: _jobTitleController,
+                decoration: const InputDecoration(labelText: 'Job Title'),
+              ),
+              const SizedBox(height: 10),
+
+              // Location field
+              TextFormField(
+                controller: _locationController,
+                decoration: const InputDecoration(labelText: 'Location'),
+              ),
+              const SizedBox(height: 10),
+
+              // Package field
+              TextFormField(
+                controller: _packageController,
+                decoration: const InputDecoration(labelText: 'Package'),
+              ),
+              const SizedBox(height: 10),
+
+              // Role Type field
+              TextFormField(
+                controller: _roleTypeController,
+                decoration: const InputDecoration(labelText: 'Role Type'),
+              ),
+              const SizedBox(height: 10),
+
+              // Minimum CGPA field
+              TextFormField(
+                controller: _minimumCgpaController,
+                decoration: const InputDecoration(labelText: 'Minimum CGPA'),
+              ),
+              const SizedBox(height: 10),
+
+              // Backlog Allowed field
+              TextFormField(
+                controller: _backlogController,
+                decoration:
+                    const InputDecoration(labelText: 'Active Backlog Allowed'),
+              ),
+              const SizedBox(height: 10),
+
+              // Service Bond field
+              TextFormField(
+                controller: _serviceBondController,
+                decoration: const InputDecoration(labelText: 'Service Bond'),
+              ),
+              const SizedBox(height: 10),
+
+              // Job Description field
+              TextFormField(
+                controller: _jobDescriptionController,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Job Description'),
+              ),
               const SizedBox(height: 20),
+
               ElevatedButton(
-                onPressed: _isLoading ? null : _uploadPDFAndExtractText, // Disable button while loading
+                onPressed: _isLoading
+                    ? null
+                    : _uploadPDFAndExtractText, // Disable button while loading
                 child: const Text('Upload PDF and Extract Data'),
+              ),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: _isLoading
+                    ? null
+                    : _postJobData, // Disable button while loading
+                child: const Text('Post Job Data'),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers to free up resources
+    _companyNameController.dispose();
+    _jobTitleController.dispose();
+    _locationController.dispose();
+    _packageController.dispose();
+    _roleTypeController.dispose();
+    _minimumCgpaController.dispose();
+    _backlogController.dispose();
+    _serviceBondController.dispose();
+    _jobDescriptionController.dispose();
+    super.dispose();
   }
 }
