@@ -1,7 +1,6 @@
 import 'dart:convert'; // For json.encode and json.decode
 import 'package:flutter/material.dart'; // Flutter material design components
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
-import '../extractor.dart'; // Your custom PDFProcessor class
+import '../functions/extractor.dart'; // Your custom PDFProcessor class
 
 class PlaceMePostPage extends StatefulWidget {
   const PlaceMePostPage({super.key});
@@ -12,7 +11,6 @@ class PlaceMePostPage extends StatefulWidget {
 
 class _PlaceMePostPageState extends State<PlaceMePostPage> {
   final PDFProcessor _pdfProcessor = PDFProcessor(); // Instance of your PDFProcessor
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Firestore instance
   bool _isLoading = false;
 
   // Form controllers for each field
@@ -61,40 +59,6 @@ class _PlaceMePostPageState extends State<PlaceMePostPage> {
     setState(() {
       _isLoading = false;
     });
-  }
-
-  Future<void> _postJobDetails() async {
-    // Create a map of job details
-    final jobDetails = {
-    'company_name': _companyNameController.text,
-    'job_title': _jobTitleController.text,
-    'location': _locationController.text,
-    'package': _packageController.text,
-    'role_type': _roleTypeController.text,
-    'minimum_cgpa': num.tryParse(_minimumCgpaController.text) ?? 0, // Convert to num
-    'active_backlog_allowed': num.tryParse(_backlogController.text) ?? 0, // Convert to num
-    'service_bond': _serviceBondController.text,
-    'job_description': _jobDescriptionController.text,
-  };
-
-    // Add the job details to Firestore
-    await _firestore.collection('post').add(jobDetails);
-
-    // Clear the form fields
-    _companyNameController.clear();
-    _jobTitleController.clear();
-    _locationController.clear();
-    _packageController.clear();
-    _roleTypeController.clear();
-    _minimumCgpaController.clear();
-    _backlogController.clear();
-    _serviceBondController.clear();
-    _jobDescriptionController.clear();
-
-    // Optionally show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Job details posted successfully!')),
-    );
   }
 
   @override
@@ -177,15 +141,10 @@ class _PlaceMePostPageState extends State<PlaceMePostPage> {
               const SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: _isLoading ? null : _uploadPDFAndExtractText, // Disable button while loading
+                onPressed: _isLoading
+                    ? null
+                    : _uploadPDFAndExtractText, // Disable button while loading
                 child: const Text('Upload PDF and Extract Data'),
-              ),
-
-              const SizedBox(height: 10),
-
-              ElevatedButton(
-                onPressed: _isLoading ? null : _postJobDetails, // Disable button while loading
-                child: const Text('Post Job Details'),
               ),
             ],
           ),

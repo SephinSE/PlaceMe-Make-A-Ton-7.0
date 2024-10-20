@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'app-placeme.appspot.com',
     measurementId: 'G-FV70BMMD5P',
   );
-
 }

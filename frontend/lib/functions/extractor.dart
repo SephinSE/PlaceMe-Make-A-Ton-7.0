@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -17,9 +15,9 @@ class PDFProcessor {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      final filePath = result.files.first.path;
-      if (filePath != null) {
-        final fileBytes = await File(filePath).readAsBytes();
+      final fileBytes = result.files.first.bytes;
+
+      if (fileBytes != null) {
         try {
           // Step 2: Encode the PDF file to Base64
           String base64EncodedFile = base64Encode(fileBytes);
@@ -61,9 +59,8 @@ class PDFProcessor {
 
               // Step 5: Fetch the content of the text file
               final textResponse = await http.get(Uri.parse(textFileUrl));
-              print(textResponse.body);
-              if (textResponse.statusCode == 200) {
 
+              if (textResponse.statusCode == 200) {
                 return textResponse.body; // Return the extracted text
               } else {
                 return 'Failed to fetch the extracted text file.';
@@ -98,9 +95,7 @@ class PDFProcessor {
     ]);
 
     if (response != null) {
-      print(response.text);
-      return response.text;
-
+      return response.text; // Return the extracted job details as a string
     } else {
       return 'Failed to extract job data.';
     }

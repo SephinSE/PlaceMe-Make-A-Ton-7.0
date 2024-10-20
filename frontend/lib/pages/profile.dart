@@ -65,7 +65,6 @@ class _PlaceMeProfilePageState extends State<PlaceMeProfilePage> {
             int genderID = userProfile.genderID;
             String photoURL = userProfile.photoURL;
             bool isAdmin = userProfile.isAdmin;
-           
 
             return Scaffold(
               appBar: PlaceMeAppbar(title: username),
@@ -103,7 +102,6 @@ class _PlaceMeProfilePageState extends State<PlaceMeProfilePage> {
                                   Text('Register Number: $registerNumber', style: AppStyles.textStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w500)),
                                   const SizedBox(height: 4),
                                   Text('Date of birth: ${DateFormat('dd MMMM yyyy').format(dob)}', style: AppStyles.textStyle.copyWith(fontSize: 16, fontWeight: FontWeight.w500)),
-                                  
                                 ],
                               )
                           ),
