@@ -1,0 +1,84 @@
+{
+    "createTime": 1729400400564,
+    "updateTime": 0,
+    "name": "placeme_shortlist_candidates_workflow",
+    "description": "Workflow for shortlisting candidates and notifying them",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "shortlist_students",
+        "taskReferenceName": "shortlist_students_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/shortlist_students",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "criteria": "${workflow.input.criteria}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "notify_shortlisted_students",
+        "taskReferenceName": "notify_shortlisted_students_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/notify_shortlisted_students",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "shortlistedStudents": "${workflow.input.shortlistedStudents}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "jobId",
+      "criteria",
+      "shortlistedStudents"
+    ],
+    "outputParameters": {},
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "chinmay2k3v@gmail.com",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true
+  }

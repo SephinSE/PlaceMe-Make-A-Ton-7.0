@@ -1,0 +1,119 @@
+{
+    "createTime": 1729399356860,
+    "updateTime": 0,
+    "name": "placeme_validate_job_posting",
+    "description": "Workflow for posting job opportunities and notifying students",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "post_job",
+        "taskReferenceName": "post_job_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/post_job",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "coordinatorId": "${workflow.input.coordinatorId}",
+            "jobTitle": "${workflow.input.jobTitle}",
+            "jobDescription": "${workflow.input.jobDescription}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "notify_students",
+        "taskReferenceName": "notify_students_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/notify_students",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "jobTitle": "${workflow.input.jobTitle}",
+            "eligibleStudents": "${workflow.input.eligibleStudents}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "generate_report",
+        "taskReferenceName": "generate_report_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/generate_report",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "coordinatorId": "${workflow.input.coordinatorId}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": true,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "jobId",
+      "coordinatorId",
+      "jobTitle",
+      "jobDescription",
+      "eligibleStudents"
+    ],
+    "outputParameters": {},
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "chinmay2k3v@gmail.com",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true
+  }

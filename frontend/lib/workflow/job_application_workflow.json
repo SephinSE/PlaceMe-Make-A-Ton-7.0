@@ -1,0 +1,120 @@
+{
+    "createTime": 1729399825157,
+    "updateTime": 0,
+    "name": "placeme_application_workflow",
+    "description": "Workflow for students applying to job postings and notifying coordinators",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "submit_application",
+        "taskReferenceName": "submit_application_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/submit_application",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "studentId": "${workflow.input.studentId}",
+            "jobId": "${workflow.input.jobId}",
+            "resumeUrl": "${workflow.input.resumeUrl}",
+            "coverLetter": "${workflow.input.coverLetter}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "notify_coordinator",
+        "taskReferenceName": "notify_coordinator_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/notify_coordinator",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "coordinatorId": "${workflow.input.coordinatorId}",
+            "studentId": "${workflow.input.studentId}",
+            "jobId": "${workflow.input.jobId}",
+            "resumeUrl": "${workflow.input.resumeUrl}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "generate_application_report",
+        "taskReferenceName": "generate_application_report_task",
+        "inputParameters": {
+          "uri": "https://your-api-endpoint.com/api/generate_application_report",
+          "method": "POST",
+          "accept": "application/json",
+          "contentType": "application/json",
+          "encode": true,
+          "headers": {
+            "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+          },
+          "body": {
+            "jobId": "${workflow.input.jobId}",
+            "coordinatorId": "${workflow.input.coordinatorId}"
+          }
+        },
+        "type": "HTTP",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": true,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "studentId",
+      "jobId",
+      "resumeUrl",
+      "coverLetter",
+      "coordinatorId"
+    ],
+    "outputParameters": {},
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "chinmay2k3v@gmail.com",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true
+  }
