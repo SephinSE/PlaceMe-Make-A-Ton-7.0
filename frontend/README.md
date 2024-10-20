@@ -1,6 +1,6 @@
-# placeme_make_a_ton7
+# placeme
 
-Campus Placement App for CUSAT as a submission for Make-A-Ton 7.0, Conductor Track and HackForCUSAT
+A new Flutter project.
 
 ## Getting Started
 

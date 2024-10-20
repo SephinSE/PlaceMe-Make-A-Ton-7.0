@@ -17,10 +17,11 @@ class PlaceMeAppbar extends StatelessWidget implements PreferredSizeWidget {
     final textStyle = AppStyles.textStyle;
 
     return AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      backgroundColor: AppStyles.onThistleColor,
       title: Text(title),
       titleTextStyle: textStyle.copyWith(
         fontSize: 24,
+        color: AppStyles.thistleColor2,
         fontWeight: FontWeight.w700,
       ),
       actions: actions,

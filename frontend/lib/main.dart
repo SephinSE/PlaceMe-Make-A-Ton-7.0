@@ -1,23 +1,25 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'app_state.dart';
 import 'package:go_router/go_router.dart';
-import 'auth_page.dart';
-import 'home_page.dart';
-import 'pages/feed.dart';
-import 'pages/post.dart';
-import 'pages/schedules.dart';
-import 'pages/career.dart';
-import 'pages/profile.dart';
-import 'pages/edit_profile.dart';
+import 'package:placeme/app_state.dart';
+import 'package:placeme/firebase_options.dart';
+import 'package:placeme/pages/auth_page.dart';
+import 'package:placeme/pages/edit_profile.dart';
+import 'package:placeme/pages/home_page.dart';
+import 'package:placeme/pages/post.dart';
+import 'package:placeme/pages/profile.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //GoogleFonts.config.allowRuntimeFetching = false;
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(ChangeNotifierProvider(
-    create: (context) => ApplicationState(), // Create your ChangeNotifier
+    create: (context) => ApplicationState(),
     builder: ((context, child) => const MyApp()),
   ));
 }
@@ -27,33 +29,22 @@ final GoRouter _router = GoRouter(
       GoRoute(
         path: '/',
         builder: (context, state) {
-          return Consumer<ApplicationState>(
-            builder: (context, authProvider, _) {
-              if (authProvider.isLoggedIn) {
-                return const MyHomePage(); // Replace with your home page
+          return StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return const MyHomePage();
               } else {
-                return const PlaceMeAuthPage(); // Replace with your authentication page
+                return const PlaceMeAuthPage();
               }
             },
           );
         },
         routes: [
           GoRoute(
-              path: 'schedules',
-              builder: (context, state) {
-                return const PlaceMeSchedulesPage();
-              }
-          ),
-          GoRoute(
               path: 'post',
               builder: (context, state) {
                 return const PlaceMePostPage();
-              }
-          ),
-          GoRoute(
-              path: 'career',
-              builder: (context, state) {
-                return const PlaceMeCareerPage();
               }
           ),
           GoRoute(
@@ -70,9 +61,8 @@ final GoRouter _router = GoRouter(
                 )
               ]
           ),
-        ]
-
-      ),
+    ]
+      )
     ]
 );
 
@@ -85,11 +75,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'PlaceMe',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3D63C6)),
-        textTheme: GoogleFonts.robotoFlexTextTheme(
-          Theme.of(context).textTheme,
-        ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
         useMaterial3: true,
       ),
       routerConfig: _router,

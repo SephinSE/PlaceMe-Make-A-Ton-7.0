@@ -14,17 +14,25 @@ class PlaceMeNavBar extends StatefulWidget{
 class _PlaceMeNavBarState extends State<PlaceMeNavBar> {
   @override
   Widget build(BuildContext context) {
-    Color color = AppStyles.placeMeColor;
-    bool isAdmin = true;
+    Color color = AppStyles.thistleColor;
+    final user = Provider.of<ApplicationState>(context).currentUser;
 
     return NavigationBar(
       destinations: [
         NavigationDestination(icon: Icon(Icons.home, color: color), label: 'Feed'),
-        isAdmin ? NavigationDestination(icon: Icon(Icons.add_box, color: color), label: 'Post') : NavigationDestination(icon: Icon(Icons.location_on, color: color), label: 'Schedules'),
-        NavigationDestination(icon: Icon(Icons.favorite, color: color), label: 'Career'),
+        Consumer<ApplicationState>(
+          builder: (context, appState, child) {
+            final userProfile = appState.userProfile;
+            if (user != null && userProfile != null) {
+              bool isAdmin = userProfile.isAdmin;
+              if (isAdmin) return NavigationDestination(icon: Icon(Icons.add_box, color: color), label: 'Post');
+            }
+            return const SizedBox(height: 0);
+          }
+        ),
         NavigationDestination(icon: Icon(Icons.person, color: color), label: 'Profile'),
       ],
-      backgroundColor: AppStyles.onPlaceMeColor,
+      backgroundColor: AppStyles.onThistleColor,
       selectedIndex: Provider.of<ApplicationState>(context).selectedIndex,
       onDestinationSelected: Provider.of<ApplicationState>(context, listen: false).onNavBarTap,
     );

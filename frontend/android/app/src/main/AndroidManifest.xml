@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="placeme_make_a_ton7"
+        android:label="placeme"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
